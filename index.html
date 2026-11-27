@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>禪修出席查詢系統</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background-color: #f4f6f9; color: #212529; font-family: "Microsoft JhengHei", "PingFang TC", sans-serif; padding: 20px 12px 50px; font-size: 18px; line-height: 1.5; }
+    .login-box { max-width: 460px; margin: 25px auto; background: #fff; border-radius: 16px; padding: 30px 24px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); border: 1px solid #e9ecef; }
+    .result-box { max-width: 1100px; margin: 15px auto; background: #fff; border-radius: 16px; padding: 24px 18px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); border: 1px solid #e9ecef; display: none; }
+    h3 { font-size: 26px; text-align: center; color: #2c3e50; margin-bottom: 18px; }
+    h4 { font-size: 22px; color: #2c3e50; }
+    h5 { font-size: 19px; color: #495057; margin-bottom: 12px; }
+    .tip-box { background: #f8f9fa; border-left: 4px solid #0d6efd; padding: 12px; border-radius: 6px; font-size: 16px; color: #555; margin-bottom: 18px; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; font-weight: bold; margin-bottom: 6px; }
+    input[type="text"] { width: 100%; padding: 12px; font-size: 18px; border: 1px solid #ced4da; border-radius: 8px; }
+    input[type="text"]:focus { outline: none; border-color: #0d6efd; box-shadow: 0 0 0 3px rgba(13,110,253,0.15); }
+    .check-row { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; font-size: 16px; color: #666; font-weight: bold; }
+    .check-row input { width: 20px; height: 20px; }
+    .notice-box { background: #f8f9fa; border-left: 4px solid #ffc107; padding: 12px; border-radius: 6px; font-size: 15px; color: #333; margin-bottom: 18px; }
+    .btn-primary { width: 100%; padding: 14px; font-size: 20px; font-weight: bold; color: #fff; background: #0d6efd; border: none; border-radius: 10px; cursor: pointer; }
+    .btn-primary:disabled { background: #6c757d; cursor: not-allowed; }
+    .btn-logout { padding: 8px 16px; font-size: 16px; font-weight: bold; color: #dc3545; background: #fff; border: 2px solid #dc3545; border-radius: 8px; cursor: pointer; }
+    .err-msg { color: #dc3545; font-weight: bold; text-align: center; margin-top: 14px; font-size: 16px; }
+    .header-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #dee2e6; padding-bottom: 14px; margin-bottom: 16px; gap: 10px; }
+    .badge-role { display: inline-block; background: #6c757d; color: #fff; padding: 4px 12px; border-radius: 6px; font-size: 16px; margin-top: 6px; }
+    .sync-time { font-size: 14px; color: #6c757d; margin-top: 6px; }
+    .sync-time span { color: #0d6efd; font-weight: bold; }
+    .alert-warm { background: #fff3cd; color: #664d03; border-left: 4px solid #ffc107; padding: 12px 14px; border-radius: 6px; font-size: 16px; margin-bottom: 18px; }
+    .table-wrap { width: 100%; overflow-x: auto; border: 1px solid #dee2e6; border-radius: 8px; }
+    table { width: 100%; border-collapse: collapse; min-width: 600px; }
+    th, td { border: 1px solid #dee2e6; padding: 10px 8px; text-align: center; white-space: nowrap; font-size: 17px; }
+    th { background: #34495e; color: #fff; }
+    .sticky-col { position: sticky; left: 0; background: #fff3bf; color: #b45309; font-weight: bold; border-right: 2px solid #dee2e6; z-index: 2; }
+    .my-row { background: #fff9db; }
+    .badge-st { display: inline-block; padding: 6px 12px; border-radius: 6px; font-weight: bold; min-width: 48px; font-size: 15px; }
+    .st-V { background: #cff4fc; color: #055160; }
+    .st-ML { background: #d1e7dd; color: #0f5132; }
+    .st-L { background: #fff3cd; color: #664d03; }
+    .st-M { background: #e2e3e5; color: #41464b; }
+    .st-F { background: #e8dbfc; color: #4b2394; }
+    .st-err { background: #f8d7da; color: #842029; }
+    .st-warn { background: #fff3cd; color: #664d03; border: 1px dashed #ffc107; }
+    .legend-box { background: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-top: 20px; font-size: 16px; }
+    .legend-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+    .badge-award { background: #198754; color: #fff; padding: 5px 10px; border-radius: 6px; font-size: 15px; font-weight: bold; }
+  </style>
+</head>
+
+  <body>
+  <div class="login-box" id="loginPage">
+    <h3>禪修出席查詢系統</h3>
+    <div class="tip-box">
+      <strong>如何查詢：</strong><br>
+      • <strong>正式學員：</strong>填寫【學員編號】與【法名】。<br>
+      • <strong>旁聽生：</strong>編號留白，填寫【學員姓名】與【法名】。
+    </div>
+    <div class="form-group">
+      <label>學員編號</label>
+      <input type="text" id="studentId" placeholder="正式學員必填">
+    </div>
+    <div class="form-group">
+      <label>學員姓名</label>
+      <input type="text" id="auditorName" placeholder="旁聽生必填">
+    </div>
+    <div class="form-group">
+      <label>法名</label>
+      <input type="text" id="dharmaName" placeholder="請輸入法名">
+    </div>
+    <div class="check-row">
+      <input type="checkbox" id="noDharmaCheckbox" onchange="toggleDharmaInput()">
+      <label for="noDharmaCheckbox" style="margin:0; cursor:pointer;">無「法名」者請勾選此處</label>
+    </div>
+    <div class="notice-box">
+      <strong>溫馨提示：</strong>有時候，登入時間可能較長，並非當機，最長等候可能在三分鐘以內即可進入，請稍等待一下。<br>點擊後網頁仍停止回應，請稍等一下，再次點擊【驗證身份並查詢】按鈕，感恩。🙏🙏🙏
+    </div>
+    <button onclick="login()" id="loginBtn" class="btn-primary">驗證身份並查詢</button>
+    <div id="errMsg" class="err-msg"></div>
+  </div>
+
+  <div class="result-box" id="resultPage">
+    <div class="header-bar">
+      <div>
+        <h4 id="welcomeTitle"></h4>
+        <div id="roleBadge" class="badge-role"></div>
+        <div class="sync-time">系統資料庫最後同步時間：<span id="dbUpdateTime">載入中...</span></div>
+      </div>
+      <button onclick="logout()" class="btn-logout">登出系統</button>
+    </div>
+
+    <div class="alert-warm">
+      <strong>溫馨提醒：</strong>若您近期曾辦理補課或補靜坐，因後台資料人工登錄需作業時間，查詢結果若與您實際紀錄有所落差，尚祈見諒。<br>
+      如出席狀況資料有誤，望眾慈悲回報給<strong>組長</strong>，以利協助修正。感恩布施包容與慈悲配合，阿彌陀佛。
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr id="tableHeaders"></tr></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="legend-box">
+      <h5>出席符號視覺對照說明表 💡</h5>
+      <div class="legend-grid">
+        <div><span class="badge-st st-V">V</span> 出席 (有效出席)</div>
+        <div><span class="badge-st st-L">L</span> 遲到 (有效出席)</div>
+        <div><span class="badge-st st-M">M</span> 補課 (有效出席)</div>
+        <div><span class="badge-st st-ML">ML</span> 靜坐補課</div>
+        <div><span class="badge-st st-err">A</span> <strong style="color:#dc3545;">上課晚到</strong></div>
+        <div><span class="badge-st st-warn">LL</span> <strong style="color:#b45309;">靜坐遲到</strong></div>
+        <div><span class="badge-st st-err">未到</span> <strong style="color:#dc3545;">缺席</strong></div>
+        <div><span class="badge-st st-F">F</span> 放香 (放假)</div>
+      </div>
+    </div>
+  </div>
+
+      <script>
+    var API_URL = "https://script.google.com/macros/s/AKfycbwYUChfgsJsUjlTC-Lxy_iceMgZrzwPqhrtwFadMIqzxN9wnNQ-T1di3_cUsYEF_M7WeQ/exec";
+
+    function toggleDharmaInput() {
+      var c = document.getElementById("noDharmaCheckbox").checked;
+      document.getElementById("dharmaName").value = c ? "無" : "";
+      document.getElementById("dharmaName").disabled = c;
+    }
+
+    function login() {
+      var id = document.getElementById("studentId").value.trim();
+      var name = document.getElementById("auditorName").value.trim();
+      var dharma = document.getElementById("dharmaName").value.trim();
+      if (!id && !name) { document.getElementById("errMsg").innerText = "請填寫編號或姓名！"; return; }
+      if (!dharma) { document.getElementById("errMsg").innerText = "請填寫法名！"; return; }
+
+      var btn = document.getElementById("loginBtn");
+      btn.disabled = true;
+      btn.innerText = "驗證身份中...";
+      document.getElementById("errMsg").innerText = "";
+
+      fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: "studentLogin", studentId: id, dharmaName: dharma, auditorName: name })
+      })
+      .then(function(response) { return response.json(); })
+      .then(function(res) {
+        btn.disabled = false;
+        btn.innerText = "驗證身份並查詢";
+        if (res.success) {
+          renderResult(res);
+        } else {
+          document.getElementById("errMsg").innerText = res.msg;
+        }
+      })
+      .catch(function(err) {
+        btn.disabled = false;
+        btn.innerText = "驗證身份並查詢";
+        document.getElementById("errMsg").innerText = "連線伺服器逾時，請再次點擊按鈕或重新整理頁面。";
+      });
+    }
+
+    function renderResult(res) {
+      document.getElementById("loginPage").style.display = "none";
+      document.getElementById("resultPage").style.display = "block";
+
+      var welcomeDharma = res.myDharma ? "（" + res.myDharma + "）" : "";
+      document.getElementById("welcomeTitle").innerText = "阿彌陀佛，" + res.myName + welcomeDharma + " 居士 您好";
+      document.getElementById("roleBadge").innerText = "身份：" + res.roleTitle;
+      document.getElementById("dbUpdateTime").innerText = res.dbLastUpdated;
+
+      var h = document.getElementById("tableHeaders");
+      var b = document.getElementById("tableBody");
+      h.innerHTML = '<th class="sticky-col">基本資料</th><th>學員編號</th>';
+      res.courses.forEach(function(c) { h.innerHTML += '<th>' + c.title + '</th>'; });
+      h.innerHTML += '<th>結業與獎項</th>';
+
+      var s = res.record;
+      var tr = document.createElement("tr");
+      tr.className = "my-row";
+
+      var listDharmaText = s.shortDharma ? '<br><span style="font-size:14px; color:#666;">(' + s.shortDharma + ')</span>' : "";
+      var htmlStr = '<td class="sticky-col">' + s.name + listDharmaText + '</td><td>' + (s.id ? s.id : '<span style="font-size:14px; color:#666;">旁聽</span>') + '</td>';
+
+      s.attendance.forEach(function(code) {
+        var c = code.trim(), txt = c;
+        if (c === "A") txt = "A<br><span style='font-size:12px;'>需補課 ⏳</span>";
+        else if (c === "LL") txt = "LL<br><span style='font-size:12px;'>需補靜坐 🧘</span>";
+        else if (c === "V" || c === "L" || c === "M" || c === "ML" || c === "F") txt = c;
+        else { c = "err"; txt = "缺席<br><span style='font-size:12px;'>需補課 💬</span>"; }
+
+        var badgeMap = {
+          "V": "st-V", "L": "st-L", "M": "st-M", "ML": "st-ML",
+          "F": "st-F", "A": "st-err", "LL": "st-warn", "err": "st-err"
+        };
+        htmlStr += '<td><span class="badge-st ' + (badgeMap[c] || "st-err") + '">' + txt + '</span></td>';
+      });
+
+      var awardText = s.award;
+      if (s.isAuditor) { awardText = (awardText === "全勤獎") ? "全勤獎" : ""; }
+      if (!awardText && !s.isAuditor) {
+        htmlStr += '<td><span style="color:#dc3545; font-weight:bold; background:#f8f9fa; padding:4px; border-radius:4px; font-size:14px; white-space:normal; display:block;">缺課過多，可能無法結業，請儘速補課。</span></td>';
+      } else {
+        htmlStr += '<td>' + (awardText ? '<span class="badge-award">' + awardText + '</span>' : '') + '</td>';
+      }
+      tr.innerHTML = htmlStr;
+      b.innerHTML = "";
+      b.appendChild(tr);
+    }
+
+    function logout() {
+      document.getElementById("studentId").value = "";
+      document.getElementById("auditorName").value = "";
+      document.getElementById("dharmaName").value = "";
+      document.getElementById("dharmaName").disabled = false;
+      document.getElementById("noDharmaCheckbox").checked = false;
+      document.getElementById("errMsg").innerText = "";
+      document.getElementById("resultPage").style.display = "none";
+      document.getElementById("loginPage").style.display = "block";
+    }
+  </script>
+</body>
+</html>
