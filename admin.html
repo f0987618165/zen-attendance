@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>組長護念小助手系統</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background-color: #f4f6f9; color: #212529; font-family: "Microsoft JhengHei", "PingFang TC", sans-serif; padding: 20px 12px 50px; font-size: 18px; line-height: 1.5; }
+    .box-sm { max-width: 480px; margin: 25px auto; background: #fff; border-radius: 16px; padding: 30px 24px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); border: 1px solid #e9ecef; }
+    .box-lg { max-width: 1150px; margin: 15px auto; background: #fff; border-radius: 16px; padding: 24px 18px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); border: 1px solid #e9ecef; display: none; }
+    h3 { font-size: 26px; color: #198754; margin-bottom: 8px; }
+    h4 { font-size: 22px; color: #2c3e50; margin-bottom: 12px; }
+    .sub-title { text-align: center; color: #666; font-size: 15px; margin-bottom: 18px; }
+    .tip-green { background: #f1f8ff; border-left: 4px solid #198754; padding: 12px; border-radius: 6px; font-size: 15px; color: #444; margin-bottom: 18px; }
+    .tip-warn { background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; border-radius: 6px; font-size: 15px; color: #664d03; margin: 14px 0; }
+    .tip-info { background: #cff4fc; color: #055160; padding: 12px; border-radius: 8px; font-size: 15px; margin-top: 10px; display: none; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; font-weight: bold; margin-bottom: 6px; }
+    .pwd-row { display: flex; gap: 8px; }
+    input[type="text"], input[type="password"], select { width: 100%; padding: 12px; font-size: 18px; border: 1px solid #ced4da; border-radius: 8px; background: #fff; }
+    .btn-eye { padding: 0 14px; font-size: 15px; font-weight: bold; background: #f8f9fa; border: 1px solid #ced4da; border-radius: 8px; cursor: pointer; white-space: nowrap; }
+    .btn-link { background: none; border: none; color: #0d6efd; font-weight: bold; font-size: 15px; cursor: pointer; text-decoration: underline; }
+    .btn-green { width: 100%; padding: 14px; font-size: 20px; font-weight: bold; color: #fff; background: #198754; border: none; border-radius: 10px; cursor: pointer; }
+    .btn-blue { width: 100%; padding: 14px; font-size: 20px; font-weight: bold; color: #fff; background: #0d6efd; border: none; border-radius: 10px; cursor: pointer; margin-bottom: 10px; }
+    .btn-gray { width: 100%; padding: 12px; font-size: 17px; font-weight: bold; color: #555; background: #e9ecef; border: none; border-radius: 10px; cursor: pointer; }
+    .btn-green:disabled, .btn-blue:disabled { background: #6c757d; cursor: not-allowed; }
+    .btn-logout { padding: 8px 16px; font-size: 16px; font-weight: bold; color: #dc3545; background: #fff; border: 2px solid #dc3545; border-radius: 8px; cursor: pointer; }
+    .err-msg { color: #dc3545; font-weight: bold; text-align: center; margin-top: 14px; font-size: 16px; }
+    .check-row { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; font-size: 16px; color: #555; font-weight: bold; }
+    .check-row input { width: 20px; height: 20px; }
+    .header-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; border-bottom: 1px solid #dee2e6; padding-bottom: 14px; margin-bottom: 16px; gap: 10px; }
+    .tab-bar { display: flex; gap: 10px; background: #f8f9fa; padding: 8px; border-radius: 10px; border: 1px solid #dee2e6; margin-bottom: 20px; }
+    .tab-btn { flex: 1; padding: 12px; font-size: 18px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; background: transparent; color: #495057; }
+    .tab-btn.active { background: #0d6efd; color: #fff; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 20px; }
+    .grid-5 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .card { background: #fdfdfd; border: 1px solid #e9ecef; border-radius: 12px; padding: 16px; text-align: center; }
+    .card-num { font-size: 28px; font-weight: 800; color: #2c3e50; margin: 4px 0; }
+    .dot { width: 20px; height: 20px; border-radius: 50%; display: inline-block; }
+    .panel { background: #fff; border: 1px solid #dee2e6; border-radius: 10px; padding: 16px; }
+    .t-0 { background: #f0f7ff; border-color: #bae6fd; } .t-1 { background: #f6f5ff; border-color: #e0e1ff; }
+    .t-2 { background: #effaf6; border-color: #cbf3e4; } .t-3 { background: #fffbf0; border-color: #fef08a; }
+    .t-4 { background: #fff5f5; border-color: #fecaca; }
+    .table-wrap { width: 100%; overflow-x: auto; border: 1px solid #dee2e6; border-radius: 8px; max-height: 500px; }
+    table { width: 100%; border-collapse: collapse; min-width: 600px; }
+    th, td { border: 1px solid #dee2e6; padding: 10px 8px; text-align: center; white-space: nowrap; font-size: 16px; }
+    th { background: #34495e; color: #fff; position: sticky; top: 0; z-index: 3; }
+    .sticky-col { position: sticky; left: 0; background: #f8f9fa; font-weight: bold; border-right: 2px solid #dee2e6; z-index: 2; }
+    .my-row { background: #fff9db; } .my-row .sticky-col { background: #fff3bf; color: #b45309; }
+    .click-row { cursor: pointer; } .click-row:hover { background: #eef2f7; }
+    .btn-copy { background: #dc3545; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer; }
+    .toast { display: inline-block; margin-left: 10px; font-weight: bold; color: #198754; background: #d1e7dd; padding: 4px 12px; border-radius: 16px; font-size: 15px; opacity: 0; transition: opacity 0.3s; }
+    .toast.show { opacity: 1; }
+    .badge-st { display: inline-block; padding: 5px 10px; border-radius: 6px; font-weight: bold; min-width: 44px; font-size: 14px; }
+    .st-V { background: #cff4fc; color: #055160; } .st-ML { background: #d1e7dd; color: #0f5132; }
+    .st-L { background: #fff3cd; color: #664d03; } .st-M { background: #e2e3e5; color: #41464b; }
+    .st-F { background: #e8dbfc; color: #4b2394; } .st-err { background: #f8d7da; color: #842029; }
+    .st-warn { background: #fff3cd; color: #664d03; border: 1px dashed #ffc107; }
+  </style>
+</head>
+
+
+
+  <body>
+  <!-- 1. 登入頁面 -->
+  <div class="box-sm" id="loginPage">
+    <h3 style="text-align:center;">組長護念小助手系統 🧘</h3>
+    <div class="sub-title">專屬權限：總學 / 副總學 / 組長 / 副組長 / 秘書</div>
+    <div class="tip-green">
+      <strong>密碼使用說明：</strong><br>
+      • <strong>第一次登入：</strong>預設密碼就是您的【學員編號】，登入後系統會引導您設定一組新密碼。<br>
+      • <strong>已改過密碼：</strong>請輸入您自己設定的密碼。
+    </div>
+    <div class="form-group">
+      <label>學員編號</label>
+      <input type="text" id="studentId" placeholder="請輸入學員編號">
+    </div>
+    <div class="form-group">
+      <label>法名</label>
+      <input type="text" id="dharmaName" placeholder="請輸入法名">
+    </div>
+    <div class="check-row">
+      <input type="checkbox" id="noDharmaCheckbox" onchange="toggleDharmaInput()">
+      <label for="noDharmaCheckbox" style="margin:0; cursor:pointer;">無「法名」者請勾選此處</label>
+    </div>
+    <div class="form-group">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <label style="margin:0;">登入密碼</label>
+        <button type="button" class="btn-link" onclick="toggleForgotBox()">忘記密碼？</button>
+      </div>
+      <div class="pwd-row">
+        <input type="password" id="loginPassword" placeholder="首次登入請輸入學員編號">
+        <button type="button" class="btn-eye" onclick="togglePwd('loginPassword', this)">👁️ 顯示</button>
+      </div>
+      <div id="forgotPwdBox" class="tip-info">
+        <strong>阿彌陀佛，請別擔心！ 🙏</strong><br>
+        為保護全班學員個資安全，若您忘記自訂密碼，請直接聯繫<strong>總學</strong>或<strong>系統管理人員</strong>協助重設。<br>
+        <small>（重設完成後，您只要再次使用【學員編號】作為密碼登入，即可重新設定新密碼，感恩！）</small>
+      </div>
+    </div>
+    <div class="tip-warn">
+      <strong>溫馨提示：</strong>有時候，登入時間可能較長，並非當機，最長等候可能在三分鐘以內即可進入，請稍等待一下。<br>點擊後網頁仍停止回應，請稍等一下，再次點擊【驗證身份並登入】按鈕，感恩。🙏🙏🙏
+    </div>
+    <button onclick="login()" id="loginBtn" class="btn-green">驗證身份並登入</button>
+    <div id="errMsg" class="err-msg"></div>
+  </div>
+
+  <!-- 2. 首次改密碼頁面 -->
+  <div class="box-sm" id="changePwdPage" style="display:none;">
+    <h3 style="text-align:center; color:#0d6efd;">歡迎首次登入護念小助手 🧘</h3>
+    <p id="pwdWelcomeText" style="text-align:center; font-weight:bold; margin:12px 0;"></p>
+    <div class="tip-warn">
+      為保障班級資料安全，請設定一組屬於您的新密碼（<strong>至少 4 碼</strong>，建議使用您容易記住的數字組合，且不可與學員編號相同）。
+    </div>
+    <div class="form-group">
+      <label>設定新密碼（至少 4 碼）</label>
+      <div class="pwd-row">
+        <input type="password" id="newPwd1" placeholder="請輸入新密碼">
+        <button type="button" class="btn-eye" onclick="togglePwd('newPwd1', this)">👁️ 顯示</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>再次確認新密碼</label>
+      <div class="pwd-row">
+        <input type="password" id="newPwd2" placeholder="請再輸入一次新密碼">
+        <button type="button" class="btn-eye" onclick="togglePwd('newPwd2', this)">👁️ 顯示</button>
+      </div>
+    </div>
+    <button onclick="submitNewPassword()" id="savePwdBtn" class="btn-blue">確認設定並進入系統</button>
+    <button onclick="logout()" class="btn-gray">取消並返回登入頁</button>
+    <div id="pwdErrMsg" class="err-msg"></div>
+  </div>
+
+  <!-- 3. 主系統頁面 -->
+  <div class="box-lg" id="mainSystemPage">
+    <div class="header-bar">
+      <div>
+        <h3>組長護念小助手系統 🧘</h3>
+        <div id="welcomeHeader" style="font-weight:bold; margin-top:4px;"></div>
+        <div style="font-size:14px; color:#666; margin-top:4px;">資料庫最後同步時間：<span id="dbUpdateTime" style="color:#0d6efd; font-weight:bold;"></span></div>
+      </div>
+      <button onclick="logout()" class="btn-logout">登出系統</button>
+    </div>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tabBtnHelper" onclick="switchTab('helper')">📊 護念小助手控制台</button>
+      <button class="tab-btn" id="tabBtnTable" onclick="switchTab('table')">📋 組別出席明細總表</button>
+    </div>
+
+    <div id="tabHelperSection">
+      <h4>全班概況（統計至最近課程）</h4>
+      <div class="grid-4">
+        <div class="card"><div style="color:#666; font-weight:bold;">全班學員</div><div class="card-num" id="statTotalStudents">0人</div></div>
+        <div class="card"><div style="color:#666; font-weight:bold;">平均出席率</div><div class="card-num" id="statLatestAttRate">0.0%</div></div>
+        <div class="card"><div style="color:#666; font-weight:bold;">估計結業率</div><div class="card-num" id="statEstGraduateRate">0.0%</div></div>
+        <div class="card"><div style="color:#666; font-weight:bold;">估計可結業</div><div class="card-num" id="statEstGraduateCount">0人</div></div>
+      </div>
+
+      <div class="grid-3">
+        <div class="card" style="border-bottom:5px solid #2ecc71;"><span class="dot" style="background:#2ecc71;"></span><div class="card-num" id="statGreenCount">0人</div><div style="color:#198754; font-weight:bold;">精進 (缺 0~1 堂)</div></div>
+        <div class="card" style="border-bottom:5px solid #f1c40f;"><span class="dot" style="background:#f1c40f;"></span><div class="card-num" id="statYellowCount">0人</div><div style="color:#b45309; font-weight:bold;">需護念 (缺 2~3 堂)</div></div>
+        <div class="card" style="border-bottom:5px solid #e74c3c;"><span class="dot" style="background:#e74c3c;"></span><div class="card-num" id="statRedCount">0人</div><div style="color:#dc3545; font-weight:bold;">優先護念 (缺超過 3 堂)</div></div>
+      </div>
+
+      <div style="background:#f8f9fa; padding:12px; border-radius:8px; text-align:center; font-weight:bold; margin-bottom:20px;">
+        全勤獎 (包含旁聽生)：<span id="statPerfectAward" style="color:#198754; font-size:20px;">0 人</span> ｜ 其餘指標僅限學員計算
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <h4>各週統計篩選 📅</h4>
+          <div style="margin-bottom:12px;"><select id="weekSelector" onchange="calculateWeekStats()"></select></div>
+          <div id="weekStatsDisplay" style="line-height:1.9;"></div>
+        </div>
+        <div class="panel">
+          <h4>各組當週排名 (不含旁聽) 🏆</h4>
+          <div style="color:#0d6efd; font-weight:bold; margin-bottom:6px;">出席率排名：🥇</div>
+          <ol id="rankAttendanceList" style="padding-left:22px; margin-bottom:16px;"></ol>
+          <div style="color:#198754; font-weight:bold; margin-bottom:6px;">實到人數排名：🥈</div>
+          <ol id="rankRealCountList" style="padding-left:22px;"></ol>
+        </div>
+      </div>
+
+      <h4>近 5 週全班趨勢明細 (不含旁聽生)：📈</h4>
+      <div id="recentTrendContent" class="grid-5"></div>
+
+      <div style="border-top:1px solid #dee2e6; padding-top:20px;">
+        <div style="display:flex; align-items:center; flex-wrap:wrap; margin-bottom:8px;">
+          <h4 style="color:#dc3545; margin:0;">LINE 關懷文字快捷生成區 💬</h4>
+          <span id="copyToastMessage" class="toast">Line 護念文字已複製 👍</span>
+        </div>
+        <p style="font-size:15px; color:#666; margin-bottom:12px;">點選下方學員列或按鈕，系統自動生成專屬護念訊息並<strong>直接複製到剪貼簿</strong>！</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>組別</th><th>姓名 (法名)</th><th>身分</th><th>異常狀態</th><th>快速操作</th></tr></thead>
+            <tbody id="helperStudentList"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="tabTableSection" style="display:none;">
+      <div id="leaderFilterArea" style="display:none; align-items:center; gap:10px; margin-bottom:14px;">
+        <label style="margin:0; white-space:nowrap;">請選擇組別：</label>
+        <select id="groupSelector" style="max-width:250px;" onchange="renderTableData()"></select>
+      </div>
+      <div class="check-row" style="color:#dc3545;">
+        <input type="checkbox" id="onlyShowCare" onchange="renderTableData()">
+        <label for="onlyShowCare" style="margin:0; cursor:pointer;">僅顯示需要關心關懷人員 ⚠️</label>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr id="tableHeaders"></tr></thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+
+
+      <script>
+    var API_URL = "https://google.com";
+    var globalData = null;
+    var pendingStudentId = "";
+
+    function toggleDharmaInput() {
+      var c = document.getElementById("noDharmaCheckbox").checked;
+      document.getElementById("dharmaName").value = c ? "無" : "";
+      document.getElementById("dharmaName").disabled = c;
+    }
+
+    function togglePwd(id, btn) {
+      var inp = document.getElementById(id);
+      if (inp.type === "password") { inp.type = "text"; btn.innerText = "🙈 隱藏"; }
+      else { inp.type = "password"; btn.innerText = "👁️ 顯示"; }
+    }
+
+    function toggleForgotBox() {
+      var box = document.getElementById("forgotPwdBox");
+      box.style.display = (box.style.display === "none" || box.style.display === "") ? "block" : "none";
+    }
+
+    function switchTab(tab) {
+      document.getElementById("tabHelperSection").style.display = (tab === "helper") ? "block" : "none";
+      document.getElementById("tabTableSection").style.display = (tab === "table") ? "block" : "none";
+      document.getElementById("tabBtnHelper").className = (tab === "helper") ? "tab-btn active" : "tab-btn";
+      document.getElementById("tabBtnTable").className = (tab === "table") ? "tab-btn active" : "tab-btn";
+    }
+
+    function login() {
+      var id = document.getElementById("studentId").value.trim();
+      var dharma = document.getElementById("dharmaName").value.trim();
+      var pwd = document.getElementById("loginPassword").value.trim();
+
+      if (!id) { document.getElementById("errMsg").innerText = "請填寫學員編號！"; return; }
+      if (!dharma) { document.getElementById("errMsg").innerText = "請填寫法名（無者請勾選上方選項）！"; return; }
+      if (!pwd) { document.getElementById("errMsg").innerText = "請輸入登入密碼！"; return; }
+
+      var btn = document.getElementById("loginBtn");
+      btn.disabled = true; btn.innerText = "驗證身份與密碼中...";
+      document.getElementById("errMsg").innerText = "";
+
+      fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: "leaderLogin", studentId: id, dharmaName: dharma, password: pwd })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        btn.disabled = false; btn.innerText = "驗證身份並登入";
+        if (!res.success) { document.getElementById("errMsg").innerText = res.msg; return; }
+        if (res.requirePasswordChange) {
+          pendingStudentId = res.studentId;
+          document.getElementById("loginPage").style.display = "none";
+          document.getElementById("changePwdPage").style.display = "block";
+          document.getElementById("pwdWelcomeText").innerText = "阿彌陀佛，" + res.realName + "（" + res.realTitle + "）您好";
+        } else {
+          globalData = res;
+          initMainSystem();
+        }
+      })
+      .catch(function(e) {
+        btn.disabled = false; btn.innerText = "驗證身份並登入";
+        document.getElementById("errMsg").innerText = "連線伺服器逾時，請再次點擊按鈕或重新整理頁面。";
+      });
+    }
+
+    function submitNewPassword() {
+      var p1 = document.getElementById("newPwd1").value.trim();
+      var p2 = document.getElementById("newPwd2").value.trim();
+      if (4 > p1.length) { document.getElementById("pwdErrMsg").innerText = "新密碼至少需要 4 碼！"; return; }
+      if (p1 !== p2) { document.getElementById("pwdErrMsg").innerText = "兩次輸入的新密碼不一致，請重新確認！"; return; }
+
+      var btn = document.getElementById("savePwdBtn");
+      btn.disabled = true; btn.innerText = "儲存新密碼中...";
+      document.getElementById("pwdErrMsg").innerText = "";
+
+      fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: "updatePassword", studentId: pendingStudentId, newPassword: p1 })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        btn.disabled = false; btn.innerText = "確認設定並進入系統";
+        if (res.success) {
+          alert("密碼設定成功！系統將為您自動登入。");
+          document.getElementById("loginPassword").value = p1;
+          document.getElementById("changePwdPage").style.display = "none";
+          document.getElementById("loginPage").style.display = "block";
+          login();
+        } else {
+          document.getElementById("pwdErrMsg").innerText = res.msg;
+        }
+      })
+      .catch(function(e) {
+        btn.disabled = false; btn.innerText = "確認設定並進入系統";
+        document.getElementById("pwdErrMsg").innerText = "儲存失敗，請稍後再試。";
+      });
+    }
+
+    function safeDharma(dName) {
+      if (!dName || dName === "無") return "";
+      dName = String(dName).trim();
+      return dName.length >= 2 ? "○" + dName.substring(1) : dName;
+    }
+
+    function initMainSystem() {
+      document.getElementById("loginPage").style.display = "none";
+      document.getElementById("changePwdPage").style.display = "none";
+      document.getElementById("mainSystemPage").style.display = "block";
+
+      var welcomeDharma = globalData.myDharma ? "（" + globalData.myDharma + "）" : "";
+      var groupText = globalData.role === "組長" ? "｜第 " + globalData.myGroup + " 組" : "｜全班權限";
+      document.getElementById("welcomeHeader").innerText = "阿彌陀佛，" + globalData.myName + welcomeDharma + "（" + globalData.realTitle + groupText + "）";
+      document.getElementById("dbUpdateTime").innerText = globalData.dbLastUpdated;
+
+      if (globalData.role === "總學") {
+        var s = document.getElementById("groupSelector");
+        s.innerHTML = "<option value=''>-- 請選擇組別 --</option>";
+        globalData.allGroups.forEach(function(g) {
+          var o = document.createElement("option"); o.value = g; o.text = "第 " + g + " 組"; s.appendChild(o);
+        });
+        document.getElementById("leaderFilterArea").style.display = "flex";
+      } else {
+        document.getElementById("leaderFilterArea").style.display = "none";
+      }
+      initHelperDashboard();
+      renderTableData();
+    }
+
+
+
+
+            function initHelperDashboard() {
+      var allList = globalData.list, courses = globalData.courses, totalWeeks = courses.length;
+      var totalStudents = 0, perfectCount = 0, graduateCount = 0, diligentCount = 0, warningCount = 0;
+      var greenCount = 0, yellowCount = 0, redCount = 0;
+
+      allList.forEach(function(s) {
+        if (s.award === "全勤獎") perfectCount++;
+        if (!s.isAuditor) {
+          totalStudents++;
+          if (s.award === "結業") graduateCount++;
+          if (s.award === "勤學獎") diligentCount++;
+          if (!s.award) warningCount++;
+          var absCount = 0;
+          s.attendance.forEach(function(code) { if (["", "A", "LL"].includes(code.trim())) absCount++; });
+          if (1 >= absCount) greenCount++;
+          else if (3 >= absCount) yellowCount++;
+          else redCount++;
+        }
+      });
+
+      document.getElementById("statTotalStudents").innerText = totalStudents + "人";
+      document.getElementById("statPerfectAward").innerText = perfectCount + " 人";
+      document.getElementById("statGreenCount").innerText = greenCount + "人";
+      document.getElementById("statYellowCount").innerText = yellowCount + "人";
+      document.getElementById("statRedCount").innerText = redCount + "人";
+      document.getElementById("statEstGraduateCount").innerText = (perfectCount + graduateCount + diligentCount) + "人";
+      document.getElementById("statEstGraduateRate").innerText = (totalStudents > 0 ? (((totalStudents - warningCount) / totalStudents) * 100).toFixed(1) : "0.0") + "%";
+
+      var weekSel = document.getElementById("weekSelector"); weekSel.innerHTML = "";
+      for (var w = totalWeeks - 1; w >= 0; w--) {
+        var opt = document.createElement("option"); opt.value = w; opt.text = "第 " + courses[w].title; weekSel.appendChild(opt);
+      }
+
+      var trendContainer = document.getElementById("recentTrendContent"); trendContainer.innerHTML = "";
+      var startIdx = Math.max(0, totalWeeks - 5), colorIdx = 0;
+
+      for (var w = totalWeeks - 1; w >= startIdx; w--) {
+        var rNoAud = 0, vNoAud = 0, ll = 0, ml = 0, m = 0, ab = 0, aud = 0;
+        allList.forEach(function(s) {
+          var st = s.attendance[w] ? s.attendance[w].trim() : "";
+          if (!s.isAuditor) {
+            rNoAud++;
+            if (["V", "L"].includes(st)) vNoAud++;
+            if (st === "LL") ll++; if (st === "ML") ml++; if (st === "M") m++; if (st === "A" || st === "") ab++;
+          } else {
+            if (["V", "L", "ML", "M", "LL", "A"].includes(st) && st !== "") aud++;
+          }
+        });
+        if (w === totalWeeks - 1) document.getElementById("statLatestAttRate").innerText = (rNoAud > 0 ? ((vNoAud / rNoAud) * 100).toFixed(1) : "0.0") + "%";
+
+        trendContainer.innerHTML += `<div class="panel t-${colorIdx}" style="font-size:15px; line-height:1.7;">
+          <div style="background:#212529; color:#fff; text-align:center; padding:4px; border-radius:6px; font-weight:bold; margin-bottom:6px;">第 ${courses[w].title} 堂</div>
+          <div style="color:#0d6efd; font-weight:bold;">出席率: ${(rNoAud > 0 ? ((vNoAud / rNoAud) * 100).toFixed(1) : "0.0")}%</div>
+          <div>應到(學員): <strong>${rNoAud}</strong> 人</div>
+          <div style="color:#198754;">實到(V+L): <strong>${vNoAud}</strong> 人</div>
+          <div style="color:#b45309;">LL需補靜坐: <strong>${ll}</strong> 人</div>
+          <div style="color:#666;">ML已補靜坐: <strong>${ml}</strong> 人</div>
+          <div style="color:#0dcaf0;">M已經補課: <strong>${m}</strong> 人</div>
+          <div style="color:#dc3545; font-weight:bold;">缺席需補課: <strong>${ab}</strong> 人</div>
+          <div style="color:#555;">旁聽出席: <strong>${aud}</strong> 人</div>
+        </div>`;
+        colorIdx = (colorIdx + 1) % 5;
+      }
+      calculateWeekStats();
+      renderHelperStudentList();
+    }
+
+    function calculateWeekStats() {
+      var wIdx = parseInt(document.getElementById("weekSelector").value, 10);
+      if (isNaN(wIdx)) return;
+      var allList = globalData.list, reqNoAud = 0, realNoAud = 0, ll = 0, ab = 0, ml = 0, m = 0, aud = 0, groupMap = {};
+
+      allList.forEach(function(s) {
+        var st = s.attendance[wIdx] ? s.attendance[wIdx].trim() : "", g = s.group || "未分配";
+        if (!groupMap[g]) groupMap[g] = { id: g, req: 0, real: 0 };
+        if (!s.isAuditor) {
+          reqNoAud++;
+          if (["V", "L"].includes(st)) { realNoAud++; groupMap[g].real++; }
+          groupMap[g].req++;
+          if (st === "LL") ll++; if (st === "A" || st === "") ab++; if (st === "ML") ml++; if (st === "M") m++;
+        } else {
+          if (["V", "L", "ML", "M", "LL", "A"].includes(st) && st !== "") aud++;
+        }
+      });
+
+      document.getElementById("weekStatsDisplay").innerHTML = `
+        <div>• <strong>應到人數：</strong> <span style="color:#0d6efd; font-weight:bold;">${reqNoAud} 人</span> (不含旁聽)</div>
+        <div>• <strong>實到人數：</strong> <span style="color:#198754; font-weight:bold;">${realNoAud} 人</span> (不含旁聽 V+L)</div>
+        <div>• <strong>當週出席率：</strong> <span style="background:#0d6efd; color:#fff; padding:2px 8px; border-radius:6px; font-weight:bold;">${(reqNoAud > 0 ? ((realNoAud / reqNoAud) * 100).toFixed(1) : "0.0")}%</span></div>
+        <hr style="margin:8px 0; border:0; border-top:1px solid #eee;">
+        <div>• <strong>LL 需補靜坐：</strong> <span style="color:#b45309; font-weight:bold;">${ll} 人</span></div>
+        <div>• <strong>缺席需補課：</strong> <span style="color:#dc3545; font-weight:bold;">${ab} 人</span></div>
+        <div>• <strong>ML 已經補靜坐：</strong> <span style="color:#198754;">${ml} 人</span></div>
+        <div>• <strong>M 已經補課：</strong> <span style="color:#0dcaf0;">${m} 人</span></div>
+        <div>• <strong>本班旁聽出席：</strong> <strong>${aud} 人</strong></div>`;
+
+      var groupList = [];
+      for (var k in groupMap) {
+        if (k !== "未分配" && k !== "") groupList.push({ id: k, req: groupMap[k].req, real: groupMap[k].real, rate: groupMap[k].req > 0 ? (groupMap[k].real / groupMap[k].req) * 100 : 0 });
+      }
+      var rankAtt = [].concat(groupList).sort(function(a, b) { return b.rate - a.rate || b.real - a.req; });
+      document.getElementById("rankAttendanceList").innerHTML = rankAtt.map(function(g) { return `<li>第 <strong>${g.id}</strong> 組 (出席率: <span style="color:#0d6efd;">${g.rate.toFixed(1)}%</span>, 實到: ${g.real}/${g.req}人)</li>`; }).join("") || "無數據";
+      var rankReal = [].concat(groupList).sort(function(a, b) { return b.real - a.real || b.rate - a.rate; });
+      document.getElementById("rankRealCountList").innerHTML = rankReal.map(function(g) { return `<li>第 <strong>${g.id}</strong> 組 (實到: <span style="color:#198754;">${g.real}人</span> / 應到: ${g.req}人)</li>`; }).join("") || "無數據";
+    }
+
+
+
+
+            function renderHelperStudentList() {
+      var b = document.getElementById("helperStudentList"); b.innerHTML = "";
+      globalData.list.forEach(function(s) {
+        var abWeeks = [];
+        s.rawAttendance.forEach(function(w) { if (["", "A", "LL"].includes(w.status.trim())) abWeeks.push(w.title); });
+        if (abWeeks.length === 0) return;
+        if (globalData.role === "組長" && s.group !== globalData.myGroup) return;
+
+        var tr = document.createElement("tr"); tr.className = "click-row";
+        var nameText = s.name + (s.dharmaName && s.dharmaName !== "無" ? `<br><small style="color:#666;">(${safeDharma(s.dharmaName)})</small>` : "");
+        tr.innerHTML = `<td>第 ${s.group} 組</td><td><strong>${nameText}</strong></td><td>${s.isAuditor ? '旁聽' : '學員'}</td><td style="color:#dc3545; font-weight:bold;">缺 ${abWeeks.length} 堂</td><td><button class="btn-copy">點選直接複製護念文字 📋</button></td>`;
+        tr.onclick = function() { copyCareText(s); };
+        b.appendChild(tr);
+      });
+    }
+
+    function copyCareText(s) {
+      var needM = [], needC = [];
+      s.rawAttendance.forEach(function(w) {
+        var st = w.status.trim(), ft = w.title.replace(/\s+/g, ' ');
+        if (st === "LL") needM.push(ft); else if (st === "A" || st === "") needC.push(ft);
+      });
+      var dharmaShow = s.shortDharma ? `（${s.shortDharma}）` : "（無）";
+      var txt = `${s.name}${dharmaShow}師兄，阿彌陀佛 🙏\n\n提醒您，目前尚未完成：\n\n• 補靜坐：${needM.length}堂` + (needM.length > 0 ? `，${needM.join('、')}。\n` : `。\n`);
+      txt += `• 補課：${needC.length}堂` + (needC.length > 0 ? `，${needC.join('、')}。\n` : `。\n`) + `\n合計：${needM.length + needC.length}堂。\n\n補課／補靜坐，請儘量於課後一個月內完成。\n`;
+      if (!s.award && !s.isAuditor) txt += `\n目前可能有無法結業的風險，請儘早向知客室安排補課。\n`;
+      txt += `\n如已安排補課，可不用理會本訊息。\n\n上課紀錄可自行查詢。\n\n您的學員編號（可直接複製）：\n\n${s.id ? s.id : '旁聽生無編號'}\n\n查詢網址：\nhttps://tinyurl.com\n\n如需要協助，\n請與組長、副組長、學員長聯繫。\n\n\n讚嘆發勇猛心、精進用功、趨向菩提。`;
+
+      var el = document.createElement('textarea'); el.value = txt; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
+      var t = document.getElementById("copyToastMessage"); t.classList.add("show"); setTimeout(function() { t.classList.remove("show"); }, 2500);
+    }
+
+    function renderTableData() {
+      var h = document.getElementById("tableHeaders"), b = document.getElementById("tableBody");
+      h.innerHTML = '<th class="sticky-col">基本資料</th><th>學員編號</th>' + globalData.courses.map(function(c) { return '<th>' + c.title + '</th>'; }).join("") + '<th>結業與獎項</th>';
+      var list = globalData.list;
+      if (globalData.role === "組長") list = list.filter(function(i) { return i.group === globalData.myGroup; });
+      else if (globalData.role === "總學") {
+        var g = document.getElementById("groupSelector").value;
+        if (!g) { b.innerHTML = '<tr><td colspan="' + (globalData.courses.length + 3) + '" style="padding:20px; color:#666;">請選擇組別。</td></tr>'; return; }
+        list = list.filter(function(i) { return i.group === g; });
+      }
+      if (document.getElementById("onlyShowCare").checked) {
+        list = list.filter(function(s) { return s.attendance.some(function(code) { var c = code.trim(); return c === "" || c === "A" || c === "LL"; }); });
+      }
+      b.innerHTML = "";
+      if (list.length === 0) { b.innerHTML = '<tr><td colspan="' + (globalData.courses.length + 3) + '" style="padding:20px; color:#666;">目前無符合條件的資料。</td></tr>'; return; }
+
+      list.forEach(function(s) {
+        var tr = document.createElement("tr");
+        if (s.id && s.id === globalData.myStudentId) tr.className = "my-row";
+        var listDharmaText = (s.dharmaName && s.dharmaName !== "無") ? '<br><span style="font-size:13px; color:#666;">(' + safeDharma(s.dharmaName) + ')</span>' : "";
+        var htmlStr = '<td class="sticky-col">' + s.name + listDharmaText + '</td><td>' + (s.id ? s.id : '<span style="font-size:13px; color:#666;">旁聽</span>') + '</td>';
+        s.attendance.forEach(function(code) {
+          var c = code.trim(), txt = c;
+          if (c === "A") txt = "A<br><span style='font-size:11px;'>需補課 ⏳</span>";
+          else if (c === "LL") txt = "LL<br><span style='font-size:11px;'>需補靜坐 🧘</span>";
+          else if (["V","L","M","ML","F"].includes(c)) txt = c;
+          else { c = "err"; txt = "缺席<br><span style='font-size:11px;'>需補課 💬</span>"; }
+          var badgeMap = { "V":"st-V", "L":"st-L", "M":"st-M", "ML":"st-ML", "F":"st-F", "A":"st-err", "LL":"st-warn", "err":"st-err" };
+          htmlStr += '<td><span class="badge-st ' + (badgeMap[c] || "st-err") + '">' + txt + '</span></td>';
+        });
+        var awardText = s.isAuditor ? (s.award === "全勤獎" ? "全勤獎" : "") : s.award;
+        if (!awardText && !s.isAuditor) htmlStr += '<td><span style="color:#dc3545; font-weight:bold; font-size:13px; white-space:normal; display:block;">缺課過多，可能無法結業，請儘速補課。</span></td>';
+        else htmlStr += '<td>' + (awardText ? '<span style="background:#198754; color:#fff; padding:4px 8px; border-radius:6px; font-size:14px; font-weight:bold;">' + awardText + '</span>' : '') + '</td>';
+        tr.innerHTML = htmlStr; b.appendChild(tr);
+      });
+    }
+
+    function logout() {
+      globalData = null; pendingStudentId = "";
+      ["studentId","dharmaName","loginPassword","newPwd1","newPwd2"].forEach(function(id) { document.getElementById(id).value = ""; });
+      document.getElementById("dharmaName").disabled = false; document.getElementById("noDharmaCheckbox").checked = false;
+      document.getElementById("errMsg").innerText = ""; document.getElementById("pwdErrMsg").innerText = "";
+      ["forgotPwdBox","changePwdPage","mainSystemPage"].forEach(function(id) { document.getElementById(id).style.display = "none"; });
+      document.getElementById("loginPage").style.display = "block";
+    }
+  </script>
+</body>
+</html>
