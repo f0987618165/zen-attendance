@@ -492,7 +492,7 @@
       var txt = `${s.name}${dharmaShow}師兄，阿彌陀佛 🙏\n\n提醒您，目前尚未完成：\n\n• 補靜坐：${needM.length}堂` + (needM.length > 0 ? `，${needM.join('、')}。\n` : `。\n`);
       txt += `• 補課：${needC.length}堂` + (needC.length > 0 ? `，${needC.join('、')}。\n` : `。\n`) + `\n合計：${needM.length + needC.length}堂。\n\n補課／補靜坐，請儘量於課後一個月內完成。\n`;
       if (!s.award && !s.isAuditor) txt += `\n目前可能有無法結業的風險，請儘早向知客室安排補課。\n`;
-      txt += `\n如已安排補課，可不用理會本訊息。\n\n上課紀錄可自行查詢。\n\n您的學員編號（可直接複製）：\n\n${s.id ? s.id : '旁聽生無編號'}\n\n查詢網址：\nhttps://tinyurl.com\n\n如需要協助，\n請與組長、副組長、學員長聯繫。\n\n\n讚嘆發勇猛心、精進用功、趨向菩提。`;
+      txt += `\n如已安排補課，可不用理會本訊息。\n\n上課紀錄可自行查詢。\n\n您的學員編號（可直接複製）：\n\n${s.id ? s.id : '旁聽生無編號'}\n\n查詢網址：\nhttps://f0987618165.github.io/zen-attendance/\n\n如需要協助，\n請與組長、副組長、學員長聯繫。\n\n\n讚嘆發勇猛心、精進用功、趨向菩提。`;
 
       var el = document.createElement('textarea'); el.value = txt; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
       var t = document.getElementById("copyToastMessage"); t.classList.add("show"); setTimeout(function() { t.classList.remove("show"); }, 2500);
